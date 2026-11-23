@@ -1,41 +1,12 @@
 import { createRadioState } from './internal/state.js';
 import { createActivation } from './internal/activation.js';
-import { createContext, resolveInput, type RadioContext, type RadioRoot } from './internal/context.js';
-import { createDescriptions } from './internal/descriptions.js';
+import { createContext, type RadioRoot } from './internal/context.js';
 
 /** A callable cleanup function with an explicit refresh for changes that emit no DOM events. */
 export interface DeselectableRadioHandle {
   (): void;
   /** Copies actual selected states after direct checked assignments or immediate markup changes. */
   refresh(): void;
-}
-
-/** Connects root listeners so radios added later receive the same behavior as existing radios. */
-function listen(
-  context: RadioContext,
-  describe: (input: HTMLInputElement) => void,
-  activation: ReturnType<typeof createActivation>,
-): () => void {
-  const { root } = context;
-
-  /** Gives newly focused radios their instructions before the user activates them. */
-  function onFocus(event: Event): void {
-    const input = resolveInput(context, event.target);
-    if (input) describe(input);
-  }
-
-  root.addEventListener('focusin', onFocus);
-  root.addEventListener('keyup', activation.onRelease, true);
-  root.addEventListener('mouseup', activation.onRelease, true);
-  root.addEventListener('click', activation.onClick, true);
-
-  // Removes exactly the listeners installed by this setup.
-  return () => {
-    root.removeEventListener('focusin', onFocus);
-    root.removeEventListener('keyup', activation.onRelease, true);
-    root.removeEventListener('mouseup', activation.onRelease, true);
-    root.removeEventListener('click', activation.onClick, true);
-  };
 }
 
 /**
@@ -53,18 +24,20 @@ function listen(
  */
 export function enableDeselectableRadio(root: RadioRoot = document): DeselectableRadioHandle {
   const context = createContext(root);
-  const descriptions = createDescriptions(context);
   const state = createRadioState(context);
-  const activation = createActivation(context, descriptions.describe, state);
-  descriptions.initialize();
-  const stopListening = listen(context, descriptions.describe, activation);
+  const activation = createActivation(context, state);
+  const listeners = [
+    ['keyup', activation.onRelease],
+    ['mouseup', activation.onRelease],
+    ['click', activation.onClick],
+  ] as const;
+  for (const [type, handler] of listeners) root.addEventListener(type, handler, true);
 
-  // Stops listeners, pending activation, and library descriptions. Each cleanup step can safely repeat.
+  // Cleanup is safe to call more than once.
   const cleanup = () => {
-    stopListening();
+    for (const [type, handler] of listeners) root.removeEventListener(type, handler, true);
     activation.cleanup();
     state.cleanup();
-    descriptions.cleanup();
   };
 
   // Refresh changes from direct checked assignments before the next click-only activation.

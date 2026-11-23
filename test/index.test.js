@@ -10,7 +10,7 @@ import { enableDeselectableRadio } from "../dist/index.js";
  */
 function setup() {
   const dom = new JSDOM(`<body><p id="hint">Existing hint</p>
-    <fieldset data-describe-deselectable-radio="Click again to deselect">
+    <fieldset>
     <span>
     <label><input id="one" data-deselectable type="radio" name="x" aria-describedby="hint"><b>One</b></label>
     <input id="two" deselectable type="radio" name="x"><label for="two"><b>Two</b></label>
@@ -113,7 +113,6 @@ test("Space clears selection and cleanup cancels pending work", async () => {
   await s.settle();
   assert.equal(input.checked, true);
   assert.equal(input.getAttribute("aria-describedby"), "hint");
-  assert.equal(s.document.querySelector('[id^="radio-uncheck-"]'), null);
   s.dom.window.close();
 });
 // Root listeners must cover new radios without attaching another listener to each input.

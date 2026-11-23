@@ -11,22 +11,23 @@
   output { display: block; margin-top: 1.5rem; }
 </style>
 <h1>Allow a radio button to be unchecked</h1>
-<p>Choose One or Two, then click it again or press Space to clear it. Three uses normal radio behavior.</p>
-<fieldset data-describe-deselectable-radio="Press Space or click again to deselect this option.">
+<p id="instructions">Choose one option. to clear it, click it again or press Space.</p>
+<fieldset>
   <legend>Choose an option</legend>
-    <label><input type="radio" name="x" value="One" data-deselectable>One</label>
-    <label><input type="radio" name="x" value="Two" deselectable><span>Two</span></label>
+    <label><input type="radio" name="x" value="One" data-deselectable aria-describedby="instructions">One (deselectable)</label>
+    <label><input type="radio" name="x" value="Two" deselectable aria-describedby="instructions"><span>Two (deselectable)</span></label>
   <input type="radio" name="x" value="Three" id="three">
-  <label for="three">Three (cannot be unchecked)</label>
+  <label for="three">Three (cannot be deselected)</label>
 </fieldset>
 <output aria-live="polite">No option selected.</output>
 <script type="module">
   import { enableDeselectableRadio } from '../dist/index.js';
   enableDeselectableRadio();
   // Shows the current selection for native selection and the library-generated deselection event.
-  document.querySelector('fieldset').addEventListener('input', () => {
-    const selected = document.querySelector('input:checked');
-    document.querySelector('output').textContent = selected ? `Selected: ${selected.value}` : 'No option selected.';
-  });
+  document.querySelector('fieldset')
+    .addEventListener('input', () => {
+      const selected = document.querySelector(':scope input:checked');
+      document.querySelector('output').textContent = selected ? `Selected: ${selected.value}` : 'No option selected.';
+    });
 </script>
 </html>

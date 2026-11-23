@@ -2,7 +2,6 @@ export type RadioRoot = Document | HTMLElement | ShadowRoot;
 
 export interface RadioContext {
   root: RadioRoot;
-  doc: Document;
   window: NonNullable<Document['defaultView']>;
 }
 
@@ -11,7 +10,7 @@ export function createContext(root: RadioRoot): RadioContext {
   const doc = root.nodeType === 9 ? root as Document : root.ownerDocument!;
   const window = doc.defaultView;
   if (!window) throw new Error('Radio uncheck requires a document with a window.');
-  return { root, doc, window };
+  return { root, window };
 }
 
 /** Checks whether a radio belongs to this setup and can respond to user activation. */

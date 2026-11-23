@@ -45,7 +45,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.setContent(`
     <p id="hint">Original help</p>
-    <fieldset data-describe-deselectable-radio="Activate again to clear">
+    <fieldset>
       <legend>Choice</legend>
       <label id="wrapped"><input id="one" type="radio" name="choice" data-deselectable aria-describedby="hint"><span>One</span></label>
       <input id="two" type="radio" name="choice" deselectable><label id="external" for="two"><span>Two</span></label>
@@ -165,10 +165,10 @@ test('dynamic radios opt in without another setup call', async ({ page }) => {
 });
 
 // Cleanup must preserve page-owned descriptions, including descriptions added after library setup.
-test('descriptions survive deselection and cleanup preserves page-owned IDs', async ({ page }) => {
+test('page-owned help text stays unchanged through deselection and cleanup', async ({ page }) => {
   const ids = (await page.locator('#one').getAttribute('aria-describedby'))!.split(/\s+/);
   expect(ids).toContain('hint');
-  expect(ids).toHaveLength(2);
+  expect(ids).toEqual(['hint']);
   await page.locator('#one').click();
   await page.locator('#one').click();
   await expect(page.locator('#one')).not.toBeChecked();
@@ -181,7 +181,8 @@ test('descriptions survive deselection and cleanup preserves page-owned IDs', as
     window.cleanup();
   });
   await expect(page.locator('#one')).toHaveAttribute('aria-describedby', 'hint later');
-  await expect(page.locator(`[id="${ids[1]}"]`)).toHaveCount(0);
+  await expect(page.locator('#hint')).toHaveText('Original help');
+  await expect(page.locator('#later')).toHaveText('Later help');
 });
 
 // After cleanup, another click on a selected radio must use native behavior and leave it selected.

@@ -1,56 +1,41 @@
 import type { RadioContext } from './context.js';
 
-/** Remembers selected states before browser click activation changes the input properties. */
+/** Saves the state before native click activation selects the radio. */
 export function createRadioState({ root, window }: RadioContext) {
-  const tree = root.getRootNode() as Document | ShadowRoot | HTMLElement;
+  const tree = root.getRootNode();
   const checked = new WeakMap<HTMLInputElement, boolean>();
-  const timers = new Set<number>();
   let active = true;
 
-  /** Copies actual radio states, including group members outside a scoped setup root. */
   function refresh(): void {
     if (!active) return;
-    tree.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach(input => {
-      // Native group selection can uncheck a radio without emitting an event on that radio.
-      checked.set(input, input.checked);
-    });
-    if (tree instanceof window.HTMLInputElement) checked.set(tree, tree.checked);
+    const inputs = root.querySelectorAll<HTMLInputElement>('input[type="radio"]:is([data-deselectable], [deselectable])');
+    for (const input of inputs) checked.set(input, input.checked);
+    if (root instanceof window.HTMLInputElement) checked.set(root, root.checked);
   }
 
-  /** Reads the prior state, with markup as the fallback for a radio added and clicked in one task. */
-  function wasChecked(input: HTMLInputElement): boolean {
-    return checked.get(input) ?? input.defaultChecked;
+  // An ordinary radio outside root can uncheck a managed radio in the same group.
+  function onChange(event: Event): void {
+    if (event.target instanceof window.HTMLInputElement && event.target.type === 'radio') refresh();
   }
 
-  /** Refreshes after a form reset completes, unless a page listener cancels the reset. */
-  function onReset(event: Event): void {
-    const timer = window.setTimeout(() => {
-      // The reset event fires before the browser restores default selections.
-      timers.delete(timer);
-      if (!event.defaultPrevented) refresh();
-    }, 0);
-    timers.add(timer);
+  // Reset fires before the browser restores checked values. A canceled reset needs no special handling.
+  function onReset(): void {
+    window.setTimeout(refresh, 0);
   }
 
   refresh();
-  tree.addEventListener('input', refresh, true);
-  tree.addEventListener('change', refresh, true);
+  tree.addEventListener('change', onChange, true);
   tree.addEventListener('reset', onReset, true);
-  // New markup can change radio groups without emitting input or change.
   const observer = new window.MutationObserver(refresh);
   observer.observe(tree, { subtree: true, childList: true, attributes: true,
     attributeFilter: ['checked', 'name', 'form', 'type', 'data-deselectable', 'deselectable'] });
 
-  /** Stops observation and pending resets without retaining removed radios. */
   function cleanup(): void {
     active = false;
     observer.disconnect();
-    tree.removeEventListener('input', refresh, true);
-    tree.removeEventListener('change', refresh, true);
+    tree.removeEventListener('change', onChange, true);
     tree.removeEventListener('reset', onReset, true);
-    timers.forEach(/* Prevents a deferred reset from refreshing a stopped setup. */ timer => window.clearTimeout(timer));
-    timers.clear();
   }
 
-  return { refresh, wasChecked, cleanup };
+  return { refresh, wasChecked: (input: HTMLInputElement) => checked.get(input) ?? input.defaultChecked, cleanup };
 }

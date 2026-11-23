@@ -24,21 +24,22 @@ const cleanup = enableDeselectableRadio();
 ```
 
 ```html
-<fieldset data-describe-deselectable-radio="Click again or press Space to deselect.">
+<p id="choice-help">Click again or press Space to deselect.</p>
+<fieldset>
   <legend>Choose one</legend>
-    <label><input type="radio" name="choice" value="one" data-deselectable> One</label>
-    <label><input type="radio" name="choice" value="two" deselectable> Two</label>
+    <label><input type="radio" name="choice" value="one" data-deselectable aria-describedby="choice-help"> One</label>
+    <label><input type="radio" name="choice" value="two" deselectable aria-describedby="choice-help"> Two</label>
   <label><input type="radio" name="choice" value="three"> Three (normal behavior)</label>
 </fieldset>
 ```
 
-Put `data-deselectable` or `deselectable` on each radio that can be deselected. Both are presence-based attributes; even `deselectable="false"` opts in. Ancestor attributes and the old `data-allow-radio-uncheck` attribute do not opt in. Prefer `data-deselectable` for valid custom HTML. Optional `data-describe-deselectable-radio` text is added as an accessible description while preserving existing description IDs. Use normal labels and a fieldset/legend for the group.
+Put `data-deselectable` or `deselectable` on each radio that can be deselected. Both are presence-based attributes; even `deselectable="false"` opts in. Ancestor attributes and the old `data-allow-radio-uncheck` attribute do not opt in. Prefer `data-deselectable` for valid custom HTML. Write help text in the page and link it with `aria-describedby`, as shown above. The library does not create or change help text. Use normal labels and a fieldset/legend for the group.
 
-`enableDeselectableRadio(root = document)` accepts a Document, HTMLElement or ShadowRoot. Call once per root, with non-overlapping roots. Importing is safe during server rendering; call setup only in the browser, after the markup exists. New radios are supported through delegated events; their optional descriptions are attached on focus or interaction. The returned function also exposes `cleanup.refresh()` to copy current selected states after silent programmatic changes. Cleanup removes listeners, cancels pending deselection and removes only descriptions created by that setup.
+`enableDeselectableRadio(root = document)` accepts a Document, HTMLElement or ShadowRoot. Call once per root, with non-overlapping roots. Importing is safe during server rendering; call setup only in the browser, after the markup exists. New radios are supported through delegated events. The returned function also exposes `cleanup.refresh()` to copy current selected states after silent programmatic changes. Cleanup removes listeners and cancels pending deselection.
 
 ## Behavior and limitations
 
-The library tracks radio selection from setup, input/change events, form resets, and markup changes. It also reads the actual selected state on primary `mouseup` or Space `keyup`. This saved state lets click-only activation, including `.click()`, clear an already selected radio. A capture-phase `click` listener clears an already selected radio before its target and bubbling click listeners run. The browser still selects unselected radios and maintains the radio group.
+The library tracks radio selection from setup, radio change events, form resets, and markup changes. It also reads the actual selected state on primary `mouseup` or Space `keyup`. This saved state lets click-only activation, including `.click()`, clear an already selected radio. A capture-phase `click` listener clears an already selected radio before its target and bubbling click listeners run. The browser still selects unselected radios and maintains the radio group.
 
 Deselection dispatches bubbling synthetic `input` and `change` events after click propagation, in a timer. Synthetic events have `isTrusted === false`. Canceled radio clicks restore the prior selection after propagation and emit no deselection notifications. For browsers that omit click on Space, the timer also clears the radio.
 
@@ -61,7 +62,7 @@ npm test
 npm run demo
 ```
 
-Open http://localhost:8080/demo/. Tests combine jsdom unit coverage with Playwright tests in Chromium, Firefox and WebKit. Browser tests exercise real mouse and keyboard activation, both opt-in attributes, nested and external labels, group selection, event order/counts, dynamic radios, descriptions and cleanup. Run `npm run test:unit` or `npm run test:browser` separately. Click-state regression tests require target and bubbling listeners to observe deselection immediately for direct input clicks and both label forms. No cases are marked as expected failures.
+Open http://localhost:8080/demo/. Tests combine jsdom unit coverage with Playwright tests in Chromium, Firefox and WebKit. Browser tests exercise real mouse and keyboard activation, both opt-in attributes, nested and external labels, group selection, event order/counts, dynamic radios, preservation of page-owned descriptions and cleanup. Run `npm run test:unit` or `npm run test:browser` separately. Click-state regression tests require target and bubbling listeners to observe deselection immediately for direct input clicks and both label forms. No cases are marked as expected failures.
 
 ## Prepare a release
 

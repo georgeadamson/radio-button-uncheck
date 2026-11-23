@@ -42,7 +42,6 @@ function notifyChange({ window }: RadioContext, input: HTMLInputElement): void {
 /** Tracks activation until click propagation finishes and owns the timers that notify page listeners. */
 export function createActivation(
   context: RadioContext,
-  describe: (input: HTMLInputElement) => void,
   state: ReturnType<typeof createRadioState>,
 ) {
   const { window } = context;
@@ -65,7 +64,6 @@ export function createActivation(
     if (!isSupportedRelease(context, event)) return;
     const input = resolveInput(context, event.target);
     if (!input) return;
-    describe(input);
     state.refresh();
     if (!input.checked || pending.has(input)) return;
     schedule(input, event);
@@ -93,7 +91,6 @@ export function createActivation(
     const input = resolveInput(context, event.target);
     // The original label event must reach the browser so it can forward a click to the input.
     if (!input || event.target !== input) return;
-    describe(input);
     let activation = pending.get(input);
     if (!activation && state.wasChecked(input)) activation = schedule(input, event);
     if (!activation) {
