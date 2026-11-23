@@ -1,0 +1,43 @@
+{
+  "name": "radio-button-uncheck",
+  "version": "0.1.0",
+  "description": "Opt-in deselection for native HTML radio buttons.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run test:unit && npm run test:browser",
+    "demo": "npm run build && python3 -m http.server 8080",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm test",
+    "test:unit": "npm run build && node --test test/*.test.js",
+    "test:browser": "npm run build && playwright test"
+  },
+  "keywords": [
+    "radio",
+    "input",
+    "uncheck",
+    "deselect",
+    "accessible"
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "jsdom": "^26.1.0",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
