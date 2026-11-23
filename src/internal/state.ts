@@ -39,7 +39,7 @@ export function createRadioState({ root, window }: RadioContext) {
   // New markup can change radio groups without emitting input or change.
   const observer = new window.MutationObserver(refresh);
   observer.observe(tree, { subtree: true, childList: true, attributes: true,
-    attributeFilter: ['checked', 'name', 'form', 'type', 'data-uncheckable', 'uncheckable'] });
+    attributeFilter: ['checked', 'name', 'form', 'type', 'data-deselectable', 'deselectable'] });
 
   /** Stops observation and pending resets without retaining removed radios. */
   function cleanup(): void {

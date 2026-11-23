@@ -32,5 +32,5 @@ export function resolveInput(context: RadioContext, target: EventTarget | null):
     : target.closest('label')?.control;
   if (!(input instanceof window.HTMLInputElement)) return null;
   if (input.type !== 'radio' || input.matches(':disabled')) return null;
-  return root.contains(input) && input.matches('[data-uncheckable], [uncheckable]') ? input : null;
+  return root.contains(input) && input.matches('[data-deselectable], [deselectable]') ? input : null;
 }

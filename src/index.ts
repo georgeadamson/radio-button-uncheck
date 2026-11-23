@@ -4,7 +4,7 @@ import { createContext, resolveInput, type RadioContext, type RadioRoot } from '
 import { createDescriptions } from './internal/descriptions.js';
 
 /** A callable cleanup function with an explicit refresh for changes that emit no DOM events. */
-export interface UncheckableRadioHandle {
+export interface DeselectableRadioHandle {
   (): void;
   /** Copies actual selected states after direct checked assignments or immediate markup changes. */
   refresh(): void;
@@ -41,7 +41,7 @@ function listen(
 /**
  * Lets users clear a selected radio with another primary click or Space press.
  * Native radios normally stay selected until another radio in the group replaces them.
- * Only radios with data-uncheckable or uncheckable receive this extra behavior.
+ * Only radios with data-deselectable or deselectable receive this extra behavior.
  *
  * The root limits which radios this call manages. Listeners on the root also cover
  * radios that the page adds later. Each root needs one call with no overlap.
@@ -51,7 +51,7 @@ function listen(
  * Its refresh method copies selected states after programmatic changes that emit no events.
  * Importing this module alone does not access the DOM or install listeners.
  */
-export function enableUncheckableRadio(root: RadioRoot = document): UncheckableRadioHandle {
+export function enableDeselectableRadio(root: RadioRoot = document): DeselectableRadioHandle {
   const context = createContext(root);
   const descriptions = createDescriptions(context);
   const state = createRadioState(context);
@@ -71,4 +71,4 @@ export function enableUncheckableRadio(root: RadioRoot = document): UncheckableR
   return Object.assign(cleanup, { refresh: state.refresh });
 }
 
-export default enableUncheckableRadio;
+export default enableDeselectableRadio;

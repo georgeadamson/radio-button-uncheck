@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
-import { enableUncheckableRadio } from "../dist/index.js";
+import { enableDeselectableRadio } from "../dist/index.js";
 
 /**
  * Creates an isolated document for tests that inspect the library without a browser.
@@ -10,14 +10,14 @@ import { enableUncheckableRadio } from "../dist/index.js";
  */
 function setup() {
   const dom = new JSDOM(`<body><p id="hint">Existing hint</p>
-    <fieldset data-describe-uncheckable-radio="Click again to deselect">
+    <fieldset data-describe-deselectable-radio="Click again to deselect">
     <span>
-    <label><input id="one" data-uncheckable type="radio" name="x" aria-describedby="hint"><b>One</b></label>
-    <input id="two" uncheckable type="radio" name="x"><label for="two"><b>Two</b></label>
-    <input id="disabled" data-uncheckable type="radio" disabled checked name="y">
+    <label><input id="one" data-deselectable type="radio" name="x" aria-describedby="hint"><b>One</b></label>
+    <input id="two" deselectable type="radio" name="x"><label for="two"><b>Two</b></label>
+    <input id="disabled" data-deselectable type="radio" disabled checked name="y">
     </span><input id="three" type="radio" name="x"></fieldset>`);
   const { document } = dom.window;
-  const cleanup = enableUncheckableRadio(document);
+  const cleanup = enableDeselectableRadio(document);
   // Finds a fixture radio so each test can inspect its selected state.
   const get = (id) => document.getElementById(id);
   // Simulates mouse release before click, when the library reads the prior selected state.
@@ -37,7 +37,7 @@ function setup() {
 
 // Server-rendered applications must be able to import the package without a document.
 test("import is safe without a browser global", () => {
-  assert.equal(typeof enableUncheckableRadio, "function");
+  assert.equal(typeof enableDeselectableRadio, "function");
 });
 // The browser selects first. A later click clears selection before notifications reach page listeners.
 test("click sees deselection and input/change follow exactly once", async () => {
@@ -121,7 +121,7 @@ test("delegation supports dynamically inserted opt-in radios", async () => {
   const s = setup();
   const input = s.document.createElement("input");
   input.type = "radio";
-  input.setAttribute("data-uncheckable", "");
+  input.setAttribute("data-deselectable", "");
   s.document.body.append(input);
   input.checked = true;
   s.up(input);

@@ -11,9 +11,9 @@ Once published, installation will be `npm install radio-button-uncheck` (subject
 ## Usage
 
 ```js
-import { enableUncheckableRadio } from 'radio-button-uncheck';
+import { enableDeselectableRadio } from 'radio-button-uncheck';
 
-const cleanup = enableUncheckableRadio();
+const cleanup = enableDeselectableRadio();
 
 // After direct checked assignments that emit no events:
 // radio.checked = true;
@@ -24,17 +24,17 @@ const cleanup = enableUncheckableRadio();
 ```
 
 ```html
-<fieldset data-describe-uncheckable-radio="Click again or press Space to deselect.">
+<fieldset data-describe-deselectable-radio="Click again or press Space to deselect.">
   <legend>Choose one</legend>
-    <label><input type="radio" name="choice" value="one" data-uncheckable> One</label>
-    <label><input type="radio" name="choice" value="two" uncheckable> Two</label>
+    <label><input type="radio" name="choice" value="one" data-deselectable> One</label>
+    <label><input type="radio" name="choice" value="two" deselectable> Two</label>
   <label><input type="radio" name="choice" value="three"> Three (normal behavior)</label>
 </fieldset>
 ```
 
-Put `data-uncheckable` or `uncheckable` on each radio that can be deselected. Both are presence-based attributes; even `uncheckable="false"` opts in. Ancestor attributes and the old `data-allow-radio-uncheck` attribute do not opt in. Prefer `data-uncheckable` for valid custom HTML. Optional `data-describe-uncheckable-radio` text is added as an accessible description while preserving existing description IDs. Use normal labels and a fieldset/legend for the group.
+Put `data-deselectable` or `deselectable` on each radio that can be deselected. Both are presence-based attributes; even `deselectable="false"` opts in. Ancestor attributes and the old `data-allow-radio-uncheck` attribute do not opt in. Prefer `data-deselectable` for valid custom HTML. Optional `data-describe-deselectable-radio` text is added as an accessible description while preserving existing description IDs. Use normal labels and a fieldset/legend for the group.
 
-`enableUncheckableRadio(root = document)` accepts a Document, HTMLElement or ShadowRoot. Call once per root, with non-overlapping roots. Importing is safe during server rendering; call setup only in the browser, after the markup exists. New radios are supported through delegated events; their optional descriptions are attached on focus or interaction. The returned function also exposes `cleanup.refresh()` to copy current selected states after silent programmatic changes. Cleanup removes listeners, cancels pending deselection and removes only descriptions created by that setup.
+`enableDeselectableRadio(root = document)` accepts a Document, HTMLElement or ShadowRoot. Call once per root, with non-overlapping roots. Importing is safe during server rendering; call setup only in the browser, after the markup exists. New radios are supported through delegated events; their optional descriptions are attached on focus or interaction. The returned function also exposes `cleanup.refresh()` to copy current selected states after silent programmatic changes. Cleanup removes listeners, cancels pending deselection and removes only descriptions created by that setup.
 
 ## Behavior and limitations
 

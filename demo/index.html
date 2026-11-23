@@ -12,17 +12,17 @@
 </style>
 <h1>Allow a radio button to be unchecked</h1>
 <p>Choose One or Two, then click it again or press Space to clear it. Three uses normal radio behavior.</p>
-<fieldset data-describe-uncheckable-radio="Press Space or click again to deselect this option.">
+<fieldset data-describe-deselectable-radio="Press Space or click again to deselect this option.">
   <legend>Choose an option</legend>
-    <label><input type="radio" name="x" value="One" data-uncheckable>One</label>
-    <label><input type="radio" name="x" value="Two" uncheckable><span>Two</span></label>
+    <label><input type="radio" name="x" value="One" data-deselectable>One</label>
+    <label><input type="radio" name="x" value="Two" deselectable><span>Two</span></label>
   <input type="radio" name="x" value="Three" id="three">
   <label for="three">Three (cannot be unchecked)</label>
 </fieldset>
 <output aria-live="polite">No option selected.</output>
 <script type="module">
-  import { enableUncheckableRadio } from '../dist/index.js';
-  enableUncheckableRadio();
+  import { enableDeselectableRadio } from '../dist/index.js';
+  enableDeselectableRadio();
   // Shows the current selection for native selection and the library-generated deselection event.
   document.querySelector('fieldset').addEventListener('input', () => {
     const selected = document.querySelector('input:checked');

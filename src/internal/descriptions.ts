@@ -38,8 +38,8 @@ export function createDescriptions(context: RadioContext) {
    */
   function describe(input: HTMLInputElement): void {
     if (descriptions.has(input)) return;
-    const text = input.closest('[data-describe-uncheckable-radio]')
-      ?.getAttribute('data-describe-uncheckable-radio');
+    const text = input.closest('[data-describe-deselectable-radio]')
+      ?.getAttribute('data-describe-deselectable-radio');
     if (!text) return;
     const el = createDescription(context, input, text);
     input.setAttribute('aria-describedby', [...descriptionIds(input), el.id].join(' '));

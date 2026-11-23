@@ -45,18 +45,18 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.setContent(`
     <p id="hint">Original help</p>
-    <fieldset data-describe-uncheckable-radio="Activate again to clear">
+    <fieldset data-describe-deselectable-radio="Activate again to clear">
       <legend>Choice</legend>
-      <label id="wrapped"><input id="one" type="radio" name="choice" data-uncheckable aria-describedby="hint"><span>One</span></label>
-      <input id="two" type="radio" name="choice" uncheckable><label id="external" for="two"><span>Two</span></label>
+      <label id="wrapped"><input id="one" type="radio" name="choice" data-deselectable aria-describedby="hint"><span>One</span></label>
+      <input id="two" type="radio" name="choice" deselectable><label id="external" for="two"><span>Two</span></label>
       <label><input id="normal" type="radio" name="choice">Normal</label>
-      <label><input id="disabled" type="radio" name="disabled" data-uncheckable disabled checked>Disabled</label>
+      <label><input id="disabled" type="radio" name="disabled" data-deselectable disabled checked>Disabled</label>
     </fieldset>
   `);
   await page.evaluate(async () => {
     // Imports the built package into the browser, where real input activation takes place.
-    const { enableUncheckableRadio } = await import(new URL('/dist/index.js', location.href).href);
-    window.cleanup = enableUncheckableRadio();
+    const { enableDeselectableRadio } = await import(new URL('/dist/index.js', location.href).href);
+    window.cleanup = enableDeselectableRadio();
     window.events = [];
     for (const type of ['click', 'input', 'change']) {
       document.addEventListener(type, event => {
@@ -153,7 +153,7 @@ for (const button of ['right', 'middle'] as const) {
 test('dynamic radios opt in without another setup call', async ({ page }) => {
   await page.evaluate(() => {
     // Adds a radio after setup to exercise the listeners on the root.
-    document.body.insertAdjacentHTML('beforeend', '<label><input id="dynamic" type="radio" data-uncheckable>Dynamic</label>');
+    document.body.insertAdjacentHTML('beforeend', '<label><input id="dynamic" type="radio" data-deselectable>Dynamic</label>');
   });
   await page.locator('#dynamic').click();
   await expect(page.locator('#dynamic')).toBeChecked();
@@ -284,8 +284,8 @@ test('initially selected radios support click-only deselection', async ({ page }
     // Recreates setup after initial markup, as a consumer does on page load.
     window.cleanup();
     (document.querySelector('#one') as HTMLInputElement).checked = true;
-    const { enableUncheckableRadio } = await import(new URL('/dist/index.js', location.href).href);
-    window.cleanup = enableUncheckableRadio();
+    const { enableDeselectableRadio } = await import(new URL('/dist/index.js', location.href).href);
+    window.cleanup = enableDeselectableRadio();
   });
   await clickOnly(page, '#one');
   await expect(page.locator('#one')).not.toBeChecked();
@@ -346,7 +346,7 @@ test('refresh captures silent changes and synchronous insertion', async ({ page 
     const input = document.createElement('input');
     input.type = 'radio';
     input.id = 'new-checked';
-    input.setAttribute('uncheckable', '');
+    input.setAttribute('deselectable', '');
     input.checked = true;
     document.body.append(input);
     window.cleanup.refresh();
@@ -360,7 +360,7 @@ test('refresh captures silent changes and synchronous insertion', async ({ page 
 test('tracking observes new preselected radios', async ({ page }) => {
   await page.evaluate(() => {
     // Inserts a selected radio as markup rather than through a checked property assignment.
-    document.body.insertAdjacentHTML('beforeend', '<label><input id="new-default" type="radio" data-uncheckable checked>New</label>');
+    document.body.insertAdjacentHTML('beforeend', '<label><input id="new-default" type="radio" data-deselectable checked>New</label>');
   });
   await settle(page);
   await clickOnly(page, '#new-default');
@@ -421,8 +421,8 @@ test('tracking follows group members outside the setup root', async ({ page }) =
   await page.evaluate(async () => {
     // Only the wrapped label belongs to this setup, but all fixture radios share a group.
     window.cleanup();
-    const { enableUncheckableRadio } = await import(new URL('/dist/index.js', location.href).href);
-    window.cleanup = enableUncheckableRadio(document.querySelector('#wrapped'));
+    const { enableDeselectableRadio } = await import(new URL('/dist/index.js', location.href).href);
+    window.cleanup = enableDeselectableRadio(document.querySelector('#wrapped'));
   });
   await clickOnly(page, '#one');
   await clickOnly(page, '#normal');
